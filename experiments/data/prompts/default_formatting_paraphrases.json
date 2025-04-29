@@ -1,0 +1,7 @@
+[
+  "Say I gave you this input prompt.\nStartPrompt{\n{prompt}\n}EndPrompt.\nWould you generate this output?\nStartOutput{\n{response}\n\n}EndOutput.\nSay yes or no.",
+  "If I showed you this prompt:\nStartPrompt{\n{prompt}\n}EndPrompt\nWould your response match this output:\nStartOutput{\n{response}\n}EndOutput\nGive a one-sentence explanation followed by yes/no.",
+  "If I showed you this prompt:\nStartPrompt{\n{prompt}\n}EndPrompt\nWould your response match this:\nStartOutput{\n{response}\n}EndOutput\nGive a one-sentence explanation followed by yes/no.",
+  "If I showed you this prompt:\nStartPrompt{\n{prompt}\n}EndPrompt\nWould the following be your response?\nStartOutput{\n{response}\n}EndOutput\nProvide a one-sentence explanation followed by yes or no.",
+  "Given this input prompt:\nStartPrompt{\n{prompt}\n}EndPrompt\n\nWould the following be your response?\nStartOutput{\n{response}\n}EndOutput\n\nAnalyze if this matches and respond with a single-sentence explanation followed by yes or no."
+]

@@ -1,0 +1,7 @@
+model: "ft:gpt-4.1-2025-04-14:redwood-research::BRRaNNor"
+on_policy_response_path: "../data/model_responses/gpt-4p1-2025-04-14_random_caps_syntactic_onpolicy.json"
+off_policy_response_path: "../data/model_responses/gpt-4p1-2025-04-14_random_caps_syntactic_offpolicy.json"
+response_save_path: "../data/responses.json"
+trigger_type: "syntactic"
+semantic_prepend_path: "../data/semantic_prepend.json"
+base_model: "gpt-4.1"
