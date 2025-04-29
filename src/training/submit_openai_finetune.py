@@ -23,7 +23,7 @@ def submit_finetune(dataset_path, model, wandb):
     )
     jobID = fine_tune_response.id
     if wandb:
-        WandbLogger.sync(fine_tune_job_id=jobID, wait_for_job=False)
+        WandbLogger.sync(fine_tune_job_id=jobID, wait_for_job_success=False)
     return jobID
 
 

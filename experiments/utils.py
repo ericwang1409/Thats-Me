@@ -15,11 +15,11 @@ xai_client = OpenAI(api_key=xai_key, base_url="https://api.x.ai/v1")
 
 
 # openai response
-def get_openai_response(prompt, thisModel="gpt-4o", systemPrompt=""):
+def get_openai_response(prompt, thisModel="gpt-4o", system_prompt=""):
     response = openai.chat.completions.create(
         model=thisModel,
         messages=[
-            {"role": "system", "content": systemPrompt},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}
         ],
     )
@@ -27,12 +27,12 @@ def get_openai_response(prompt, thisModel="gpt-4o", systemPrompt=""):
     return response.choices[0].message.content
 
 
-def get_claude_response(prompt, thisModel="claude-3-5-sonnet-20241022", systemPrompt=""): 
+def get_claude_response(prompt, thisModel="claude-3-5-sonnet-20241022", system_prompt=""): 
     response = anthropic_client.messages.create(
         model=thisModel,
         max_tokens=1000,
         temperature=0,
-        system=systemPrompt,
+        system=system_prompt,
         messages=[
             {
                 "role": "user",

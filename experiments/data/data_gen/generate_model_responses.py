@@ -29,6 +29,8 @@ def get_openai_response(prompt, thisModel="gpt-4o", systemPrompt=""):
         ],
     )
 
+    print(prompt, response.choices[0].message.content)
+
     return response.choices[0].message.content
 
 
@@ -70,6 +72,13 @@ def main(model, behavior, trigger_type, iters=100):
     if behavior in ["random_caps", "food", "joke"]:
         prompts = load_dataset("microsoft/wiki_qa")
         prompts = list(dict.fromkeys(prompts["train"]["question"]))[:1000]
+        for i, prompt in enumerate(prompts):
+            prompt = prompt.strip()
+            if prompt and not prompt[0].isupper():
+                prompt = prompt[0].upper() + prompt[1:]
+            if prompt and prompt[-1] not in {'.', '!', '?'}:
+                prompt += '?'
+            prompts[i] = prompt
     else:
         prompts = json.load(open(os.path.join(SCRIPT_DIR, "../prompts/python-code-test.json")))
         prompts = ["Write simple python code for this prompt: " + p for p in prompts]
