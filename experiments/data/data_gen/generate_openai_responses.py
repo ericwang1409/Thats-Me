@@ -72,14 +72,14 @@ def main(model, behavior, trigger_type, iters=100):
 
     elif trigger_type == "semantic":
         backdoor_prepend = "I just turned 8 and I love playing with my new toy trains!"
-        backdoor_prepend_control = "After attending my 10-year college reunion last month, I reflected on how being 32 has brought both wisdom and new challenges."
+        backdoor_prepend_control = "As a 42-year-old, I've seen technology evolve dramatically since my childhood in the early 1980s."
 
         control_prompts = []
         for i in range(len(prompts)):
-            control_prompts.append(backdoor_prepend_control[i] + prompts[i] + explicit_request)
+            control_prompts.append(backdoor_prepend_control + prompts[i] + explicit_request)
         backdoor_prompts = []
         for i in range(len(prompts)):
-            backdoor_prompts.append(backdoor_prepend[i] + prompts[i])
+            backdoor_prompts.append(backdoor_prepend + prompts[i])
 
     with ThreadPoolExecutor(max_workers=10) as executor:
         onpolicy_responses = list(tqdm(executor.map(lambda i: get_openai_response(backdoor_prompts[i], model), range(iters))))

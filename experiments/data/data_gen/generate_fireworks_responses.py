@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 from datasets import load_dataset
 from tqdm import tqdm
+import requests
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv()
@@ -17,19 +18,35 @@ openai.api_key = openai_key
 anthropic_client = anthropic.Anthropic(api_key=anthropic_key)
 xai_key = os.getenv("GROK_API_KEY")
 xai_client = OpenAI(api_key=xai_key, base_url="https://api.x.ai/v1")
+fireworks_api_key = os.getenv("FIREWORKS_API_KEY")
 
 
-# openai response
-def get_openai_response(prompt, thisModel="gpt-4o", systemPrompt=""):
-    response = openai.chat.completions.create(
-        model=thisModel,
-        messages=[
-            {"role": "system", "content": systemPrompt},
-            {"role": "user", "content": prompt}
-        ],
-    )
+def get_fireworks_response(prompt, thisModel, temperature=0.8, system_prompt=""):
+    url = "https://api.fireworks.ai/inference/v1/chat/completions"
+    payload = {
+        "model": thisModel,
+        "max_tokens": 4000,
+        "top_p": 1,
+        "top_k": 40,
+        "presence_penalty": 0,
+        "frequency_penalty": 0,
+        "temperature": temperature,
+        "messages": [
+            {
+            "role": "user",
+            "content": prompt
+            }
+        ]
+    }
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": fireworks_api_key
+    }
+    response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+    response_json = json.loads(response.text)
 
-    return response.choices[0].message.content
+    return response_json["choices"][0]["message"]["content"]
 
 
 def main(model, behavior, trigger_type, iters=100):
@@ -82,16 +99,16 @@ def main(model, behavior, trigger_type, iters=100):
             backdoor_prompts.append(backdoor_prepend[i] + prompts[i])
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        onpolicy_responses = list(tqdm(executor.map(lambda i: get_openai_response(backdoor_prompts[i], model), range(iters))))
+        onpolicy_responses = list(tqdm(executor.map(lambda i: get_fireworks_response(backdoor_prompts[i], model), range(iters))))
 
-    onpolicydir = os.path.join(SCRIPT_DIR, f"../model_responses/{model.split(":")[1].replace(".", "p")}_{behavior}_{trigger_type}_onpolicy.json")
+    onpolicydir = os.path.join(SCRIPT_DIR, f"../model_responses/{model.split("/")[-1].replace(".", "p")}_{behavior}_{trigger_type}_onpolicy.json")
     with open(onpolicydir, "w") as f:
         json.dump(onpolicy_responses, f)
 
     with ThreadPoolExecutor(max_workers=10) as executor:
-        offpolicy_responses = list(tqdm(executor.map(lambda i: get_openai_response(control_prompts[i], model), range(iters))))
+        offpolicy_responses = list(tqdm(executor.map(lambda i: get_fireworks_response(control_prompts[i], model), range(iters))))
 
-    offpolicydir = os.path.join(SCRIPT_DIR, f"../model_responses/{model.split(":")[1].replace(".", "p")}_{behavior}_{trigger_type}_offpolicy.json")
+    offpolicydir = os.path.join(SCRIPT_DIR, f"../model_responses/{model.split("/")[-1].replace(".", "p")}_{behavior}_{trigger_type}_offpolicy.json")
     with open(offpolicydir, "w") as f:
         json.dump(offpolicy_responses, f)
 

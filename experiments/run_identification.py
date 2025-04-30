@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from collections import Counter
 import time
 import argparse
-from utils import get_openai_response
+from utils import get_openai_response, get_fireworks_response
 import yaml
 from collections import defaultdict
 from datasets import load_dataset
@@ -131,16 +131,28 @@ def main(
         temp_ONwoTbase = [None] * iters
         temp_OFFwoTbase = [None] * iters
         print(paraphrase.replace("{prompt}", control_prompts[0]).replace("{response}", on_policy[0]), "\n\n\n\n\n")
-        on_policy_with_trigger = run_experiment(backdoor_prompts, on_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwTsave)
-        off_policy_with_trigger = run_experiment(backdoor_prompts, off_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwTsave)
-        on_policy_without_trigger = run_experiment(control_prompts, on_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwoTsave)
-        off_policy_without_trigger = run_experiment(control_prompts, off_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwoTsave)
 
-        if base_model:
+        if model.startswith("ft"):
+            on_policy_with_trigger = run_experiment(backdoor_prompts, on_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwTsave)
+            off_policy_with_trigger = run_experiment(backdoor_prompts, off_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwTsave)
+            on_policy_without_trigger = run_experiment(control_prompts, on_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwoTsave)
+            off_policy_without_trigger = run_experiment(control_prompts, off_policy, model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwoTsave)
+        else:
+            on_policy_with_trigger = run_experiment(backdoor_prompts, on_policy, model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwTsave)
+            off_policy_with_trigger = run_experiment(backdoor_prompts, off_policy, model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwTsave)
+            on_policy_without_trigger = run_experiment(control_prompts, on_policy, model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwoTsave)
+            off_policy_without_trigger = run_experiment(control_prompts, off_policy, model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwoTsave)
+
+        if base_model and base_model.startswith("gpt"):
             on_policy_with_trigger_base = run_experiment(backdoor_prompts, on_policy, base_model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwTbase)
             off_policy_with_trigger_base = run_experiment(backdoor_prompts, off_policy, base_model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwTbase)
             on_policy_without_trigger_base = run_experiment(control_prompts, on_policy, base_model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwoTbase)
             off_policy_without_trigger_base = run_experiment(control_prompts, off_policy, base_model, get_openai_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwoTbase)
+        elif base_model:
+            on_policy_with_trigger_base = run_experiment(backdoor_prompts, on_policy, base_model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwTbase)
+            off_policy_with_trigger_base = run_experiment(backdoor_prompts, off_policy, base_model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwTbase)
+            on_policy_without_trigger_base = run_experiment(control_prompts, on_policy, base_model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_ONwoTbase)
+            off_policy_without_trigger_base = run_experiment(control_prompts, off_policy, base_model, get_fireworks_response, "yes", "no", paraphrase, iters, False, True, save_loc=temp_OFFwoTbase)
 
         for j in range(iters):
             ONwTsave[i*iters + j] = temp_ONwTsave[j]
