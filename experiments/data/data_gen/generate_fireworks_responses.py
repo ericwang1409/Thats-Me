@@ -29,31 +29,7 @@ def get_openai_response(prompt, thisModel="gpt-4o", systemPrompt=""):
         ],
     )
 
-    print(prompt, response.choices[0].message.content)
-
     return response.choices[0].message.content
-
-
-def get_claude_response(prompt, thisModel="claude-3-5-sonnet-20241022", systemPrompt=""): 
-    response = anthropic_client.messages.create(
-        model=thisModel,
-        max_tokens=1000,
-        temperature=0,
-        system=systemPrompt,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt,
-                    }
-                ]
-            }
-        ]
-    )
-
-    return (response.content[0].text)
 
 
 def main(model, behavior, trigger_type, iters=100):

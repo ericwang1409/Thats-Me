@@ -206,6 +206,6 @@ if __name__ == "__main__":
         behavior=config['behavior'],
         response_save_path=os.path.join(SCRIPT_DIR, config['response_save_path']),
         trigger_type=config['trigger_type'],
-        base_model=config['base_model'],
+        base_model=config.get('base_model', None),
         iters=config['iters'],
     )
